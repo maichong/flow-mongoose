@@ -1,0 +1,19 @@
+{
+  "name": "flow-mongoose",
+  "version": "0.1.0",
+  "description": "Flow declarations for mongoose",
+  "keywords": ["flow", "mongoose", "mongodb"],
+  "files": ["flow"],
+  "scripts": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maichong/flow-mongoose.git"
+  },
+  "author": "Liang <liang@maichong.it> (https://github.com/liangxingchen)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/maichong/flow-mongoose/issues"
+  },
+  "homepage": "https://github.com/maichong/flow-mongoose#readme"
+}
