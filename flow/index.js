@@ -7,11 +7,11 @@ declare class Mongoose$Aggregate {
   skip(num: number):this;
   limit(num: number):this;
   near(parameters: Object):this;
-  unwind(...fields: Array<string>):this;
+  unwind(...fields: string[]):this;
   lookup(options: Object):this;
   sample(size: number):this;
   sort(arg: Object|string):this;
-  read(pref: string, tags?: Array<string>):this;
+  read(pref: string, tags?: string[]):this;
   explain(callback: Function):Promise<any>;
   allowDiskUse(value: boolean):this;
   cursor(options: Object):this;
@@ -48,20 +48,20 @@ declare class Mongoose$Connection extends events$EventEmitter {
   pass:string;
   name:string;
   options:Object;
-  otherDbs:Array<Mongoose$Connection>;
+  otherDbs:Mongoose$Connection[];
   readyState:string;
   db:any;
   constructor(base: Mongoose):void;
-  open(host: string, database?: string, port?: number, options?: Object, callback?: Function):Promise<null>;
-  dropDatabase(callback: Function):Promise<null>;
-  openSet(uris: string, database?: string, options?: Object, callback?: Function):Promise<null>;
+  open(host: string, database?: string, port?: number, options?: Object, callback?: Function):Promise<void>;
+  dropDatabase(callback: Function):Promise<void>;
+  openSet(uris: string, database?: string, options?: Object, callback?: Function):Promise<void>;
   error(err: Error, callback?: Function):void;
   onOpen(callback: Function):void;
-  close(callback: Function):Promise<null>;
+  close(callback: Function):Promise<void>;
   onClose(callback: Function):void;
   collection(name: string, options?: Object):Mongoose$Collection;
   model(name: string, schema?: Mongoose$Schema, collection?: string):Mongoose$Model;
-  modelNames():Array<string>;
+  modelNames():string[];
   shouldAuthenticate():boolean;
   authMechanismDoesNotRequirePassword():boolean;
   optionsProvideAuthenticationData(options?: Object):boolean;
@@ -69,7 +69,9 @@ declare class Mongoose$Connection extends events$EventEmitter {
 
 declare class Mongoose$Schema {
   static reserved:{};
-  static Types:{};
+  static Types:{
+    [key:string]:Function
+  };
   static ObjectId:Object;
 
   obj:Object;
@@ -81,25 +83,29 @@ declare class Mongoose$Schema {
   singleNestedPaths:{};
   nested:{};
   inherits:{};
-  callQueue:Array<[string,Array<any>]>;
-  methods:{};
-  statics:{};
+  callQueue:Array<[string, Array<any>]>;
+  methods:{
+    [name:string]:Function
+  };
+  statics:{
+    [name:string]:Function
+  };
   tree:{};
   query:{};
-  childMongoose$Schemas:Array<Mongoose$Schema>;
+  childMongoose$Schemas:Mongoose$Schema[];
   options:Object;
   instanceOfMongoose$Schema:boolean;
-  indexTypes:Array<string>;
+  indexTypes:string[];
 
-  constructor(obj: String, options?: Object):void;
+  constructor(obj: Object, options?: Object):void;
   defaultOptions(options: Object):Object;
   add(obj: Object, prefix: string):void;
-  path(path: string, obj: Object):this;
+  path(path: string, obj: Object|Object[]):this;
   eachPath(fn: Function):this;
-  requiredPaths(invalidate: boolean):Array<Object>;
-  indexedPaths():Array<Object>;
+  requiredPaths(invalidate: boolean):Object[];
+  indexedPaths():Object[];
   pathType(path: string):string;
-  queue(name: string, args: Array<any>):this;
+  queue(name: string, args: any[]):this;
   pre(method?: string, fn?: Function):this;
   post(method?: string, fn?: Function):this;
   plugin(fn?: Function, opts?: Object):this;
@@ -123,8 +129,8 @@ declare class Mongoose$SchemaType {
     message:string;
     type:string;
   }>;
-  setters: Array<Function>;
-  getters: Array<Function>;
+  setters: Function[];
+  getters: Function[];
   options:Object;
   selected:boolean;
 
@@ -143,8 +149,8 @@ declare class Mongoose$SchemaType {
 
 declare class Mongoose$VirtualType {
   path:string;
-  getters:Array<Function>;
-  setters:Array<Function>;
+  getters:Function[];
+  setters:Function[];
   options:Object;
 
   constructor(options: Object, name: string):void;
@@ -160,9 +166,9 @@ declare class Mongoose$Query {
   $where(js: string|Function):this;
   where(path?: Object|string, val?: any):this;
   equals(val: any):this;
-  or(conditions: Array<Object>):this;
-  nor(conditions: Array<Object>):this;
-  and(conditions: Array<Object>):this;
+  or(conditions: Object[]):this;
+  nor(conditions: Object[]):this;
+  and(conditions: Object[]):this;
   gt(path: string, val: any):this;
   gt(val: any):this;
   gte(path: string, val: any):this;
@@ -173,52 +179,52 @@ declare class Mongoose$Query {
   lte(val: any):this;
   ne(path: string, val: any):this;
   ne(val: any):this;
-  in(path: string, val: Array<any>):this;
-  in(val: Array<any>):this;
-  nin(path: string, val: Array<any>):this;
-  nin(val: Array<any>):this;
-  all(path: string, val: Array<any>):this;
-  all(val: Array<any>):this;
+  in(path: string, val: any[]):this;
+  in(val: any[]):this;
+  nin(path: string, val: any[]):this;
+  nin(val: any[]):this;
+  all(path: string, val: any[]):this;
+  all(val: any[]):this;
   size(path: string, val: number):this;
   size(val: number):this;
   regex(path: string, val: RegExp):this;
   regex(val: RegExp):this;
   maxDistance(path: string, val: number):this;
   maxDistance(val: number):this;
-  mod(path: string, val: Array<number>):this;
-  mod(val: Array<number>):this;
-  exists(path: string, val: boolean):this;
-  exists(val: boolean):this;
+  mod(path: string, val: number[]):this;
+  mod(val: number[]):this;
+  exists(path: string, val: boolean):this & Promise<Mongoose$Model[]>;
+  exists(val: boolean):this & Promise<Mongoose$Model[]>;
   elemMatch(path: string|Object|Function, criteria: Object|Function):this;
   within():this;
   within(criteria: Object):this;
-  within(...points: Array<[number,number]>):this;
-  slice(path: string, val: Array<number>|number):this;
-  slice(val: Array<number>|number):this;
-  limit(val: number):this;
-  skip(val: number):this;
+  within(...points: Array<[number, number]>):this;
+  slice(path: string, val: number[] | number):this;
+  slice(val: number[]|number):this;
+  limit(val: number):this & Promise<Mongoose$Model[]>;
+  skip(val: number):this & Promise<Mongoose$Model[]>;
   maxScan(val: number):this;
   batchSize(val: number):this;
   comment(val: string):this;
   snapshot():this;
   hint(val: Object):this;
   select(arg: Object|string):this;
-  read(pref: string, tags: Array<string>):this;
+  read(pref: string, tags: string[]):this;
   setOptions(options: Object|Mongoose$Query):this;
   getMongoose$Query():Object;
   getUpdate():Object;
   lean(bool?: boolean):this;
-  find(conditions?: Object, callback?: Function):this|Promise<Array<Mongoose$Model>>;
+  find(conditions?: Object, callback?: Function):Promise<Mongoose$Model[]> & this;
   merge(source?: Object|Mongoose$Query):this;
-  findOne(conditions?: Object, projection?: Object, options?: Object, callback?: Function):this|Promise<Mongoose$Model>;
-  count(conditions?: Object, callback?: Function):this|Promise<number>;
+  findOne(conditions?: Object, projection?: Object, options?: Object, fn?: Function):this & Promise<Mongoose$Model>;
+  count(conditions?: Object, callback?: Function):this & Promise<number>;
   distinct(field?: string, conditions?: Object, callback?: Function):this;
-  sort(arg: Object|string):this;
-  remove(conditions?: Object, callback?: Function):this;
+  sort(arg: Object|string): Mongoose$Query & Promise<Mongoose$Model> & Promise<Mongoose$Model[]>;
+  remove(conditions?: Object, callback?: Function):this & Promise<void>;
   findOneAndUpdate(conditions?: Object, doc?: Object, options?: Object, callback?: Function):this;
   findOneAndRemove(conditions?: Object, options?: Object, callback?: Function):this;
   update(conditions?: Object, doc?: Object, options?: Object, callback?: Function):this;
-  exec(op?: string|Function, callback: Function):Promise<any>;
+  exec(op?: string|Function, callback?: Function):Promise<any>;
   then(resolve?: Function, reject?: Function):Promise<any>;
   catch(reject?: Function):Promise<any>;
   populate(path: string|Object, select?: Object|string, model?: Mongoose$Model, match?: Object, options?: Object):this;
@@ -230,7 +236,7 @@ declare class Mongoose$Query {
   geometry(object: Object):this;
   near(path: string, val: Object):this;
   near(val: Object):this;
-  polygon(path: string, ...coordinatePairs: Array<[number,number]>):this;
+  polygon(path: string, ...coordinatePairs: Array<[number, number]>):this;
   polygon(...coordinatePairs: Array<[number, number]>):this;
   box(val: Object|Array<[number, number]>, upperRight?: Array<[number, number]>):this;
   circle(path: string, val: Object):this;
@@ -246,16 +252,16 @@ declare class Mongoose$QueryStream extends stream$Readable {
 declare class Mongoose$QueryCursor extends stream$Readable {
   constructor(query: Mongoose$Query, options: Object):void;
   map(fn: Function):this;
-  close(fn?: Function):Promise<null>;
-  next(fn?: Function):Promise<null>;
-  eachAsync(fn: Function, callback?: Function):Promise<null>;
+  close(fn?: Function):Promise<void>;
+  next(fn?: Function):Promise<void>;
+  eachAsync(fn: Function, callback?: Function):Promise<void>;
 }
 
 declare class Mongoose$Document extends events$EventEmitter {
   schema:Mongoose$Schema;
   isNew:boolean;
   id:string;
-  errors:Array<Object>;
+  errors:Object[];
 
   constructor(obj: Object, fields?: Object, skipId?: boolean):void;
   init(doc: Object, opts?: Object, fn?: Function):this;
@@ -265,13 +271,13 @@ declare class Mongoose$Document extends events$EventEmitter {
   markModified(path: string):void;
   unmarkModified(path: string):void;
   $ignore(path: string):void;
-  modifiedPaths():Array<string>;
-  isModified(paths: string|Array<string>):boolean;
+  modifiedPaths():string[];
+  isModified(paths: string|string[]):boolean;
   $isDefault(path: string):boolean;
   isDirectModified(path: string):boolean;
   isInit(path: string):boolean;
   isSelected(path: string):boolean;
-  validate(options: Object, callback?: Function):Promise<null>;
+  validate(options: Object, callback?: Function):Promise<void>;
   validateSync(options: Object):Mongoose$MongooseError|void;
   invalidate(path: string, err: string|Error, val: any, kind?: string):Mongoose$ValidationError;
   toObject(options?: Object):Object;
@@ -292,7 +298,7 @@ declare class Mongoose$Model extends events$EventEmitter {
   schema:Mongoose$Schema;
   isNew:boolean;
   id:string;
-  errors:Array<Object>;
+  errors:Object[];
 
   constructor(obj: Object, fields?: Object, skipId?: boolean):void;
   init(doc: Object, opts?: Object, fn?: Function):this;
@@ -302,13 +308,13 @@ declare class Mongoose$Model extends events$EventEmitter {
   markModified(path: string):void;
   unmarkModified(path: string):void;
   $ignore(path: string):void;
-  modifiedPaths():Array<string>;
-  isModified(paths: string|Array<string>):boolean;
+  modifiedPaths():string[];
+  isModified(paths: string|string[]):boolean;
   $isDefault(path: string):boolean;
   isDirectModified(path: string):boolean;
   isInit(path: string):boolean;
   isSelected(path: string):boolean;
-  validate(options: Object, callback?: Function):Promise<null>;
+  validate(options: Object, callback?: Function):Promise<void>;
   validateSync(options: Object):Mongoose$MongooseError|void;
   invalidate(path: string, err: string|Error, val: any, kind?: string):Mongoose$ValidationError;
   toObject(options?: Object):Object;
@@ -328,41 +334,46 @@ declare class Mongoose$Model extends events$EventEmitter {
   modelName:string;
   baseMongoose$ModelName:string;
   base:Mongoose;
-  discriminators:Array<Mongoose$Model>;
+  discriminators:Mongoose$Model[];
 
   static remove(conditions: Object, callback?: Function):Mongoose$Query;
-  static find(conditions?: Object, projection?: Object, options?: Object, callback?: Function):Mongoose$Query|Promise<Array<Mongoose$Model>>;
-  static findById(id: Object|string|number, projection?: Object, options?: Object, callback?: Function):Mongoose$Query|Promise<Mongoose$Model>;
-  static findByIdAndUpdate(id: Object|string|number, update: Object, options?: Object, callback?: Function):Mongoose$Query;
+  static find(conditions?: Object, projection?: Object, options?: Object, callback?: Function)
+    :Mongoose$Query|Promise<Mongoose$Model[]>;
+  static findById(id: Object|string|number, projection?: Object, options?: Object, callback?: Function)
+    :Mongoose$Query|Promise<Mongoose$Model>;
+  static findByIdAndUpdate(id: Object|string|number, update: Object, options?: Object, callback?: Function)
+    :Mongoose$Query;
   static findByIdAndRemove(id: Object|string|number, options?: Object, callback?: Function):Mongoose$Query;
-  static findOne(conditions?: Object, projection?: Object, options?: Object, callback?: Function):Mongoose$Query|Promise<Mongoose$Model>;
+  static findOne(conditions?: Object, projection?: Object, options?: Object, callback?: Function)
+    :Mongoose$Query|Promise<Mongoose$Model>;
   static findOneAndUpdate(conditions: Object, update: Object, options?: Object, callback?: Function):Mongoose$Query;
   static findOneAndRemove(conditions: Object, options?: Object, callback?: Function):Mongoose$Query;
   static update(conditions: Object, doc: Object, options?: Object, callback?: Function):Mongoose$Query;
   static count(conditions?: Object, callback?: Function):Mongoose$Query|Promise<number>;
-  static distinct(field: string, conditions?: Object, callback?: Function):Mongoose$Query|Promise<Array<any>>;
-  static where(path: string, val?: any):Mongoose$Query;
+  static distinct(field: string, conditions?: Object, callback?: Function):Mongoose$Query|Promise<any[]>;
+  static where(path: string|Object, val?: any):Mongoose$Query;
   static $where(js: string|Function):Mongoose$Query;
-  static create(doc: Object, fn?: Function):Promise<null>;
-  static create(doc: Array<Object>, fn?: Function):Promise<null>;
-  static create(...doc: Array<Object|Function>):Promise<null>;
-  static insertMany(doc: Object, fn?: Function):Promise<null>;
-  static insertMany(doc: Array<Object>, fn?: Function):Promise<null>;
-  static insertMany(...doc: Array<Object|Function>):Promise<null>;
+  static create(doc: Object, fn?: Function):Promise<void>;
+  static create(doc: Object[], fn?: Function):Promise<void>;
+  static create(...doc: Array<Object|Function>):Promise<void>;
+  static insertMany(doc: Object, fn?: Function):Promise<void>;
+  static insertMany(doc: Object[], fn?: Function):Promise<void>;
+  static insertMany(...doc: Array<Object|Function>):Promise<void>;
   static hydrate(obj: Object):Mongoose$Model;
   static mapReduce(o: Object, callback?: Function):Promise<Mongoose$Model>;
-  static geoNear(near: Object|Array<number>, callback?: Function):Promise<Mongoose$Model>;
+  static geoNear(near: Object|number[], callback?: Function):Promise<Mongoose$Model>;
   static geoSearch(conditions: Object, options?: Object, callback?: Function):Promise<Mongoose$Model>;
   static aggregate(options?: Object, fn?: Function):Mongoose$Aggregate|Promise<Mongoose$Model>;
-  static populate(docs: Mongoose$Document|Array<Mongoose$Document>, paths: Object, callback?: Function):Promise<Mongoose$Model>;
+  static populate(docs: Mongoose$Document|Array<Mongoose$Document>, paths: Object, callback?: Function)
+    :Promise<Mongoose$Model>;
 
   constructor(obj: Object, fields?: Object, skipId?: boolean):void;
-  save(options?: Object, fn?: Function):Promise<null>;
+  save(options?: Object, fn?: Function):Promise<void>;
   increment():this;
-  remove(options?: Object, fn?: Function):Promise<null>;
+  remove(options?: Object, fn?: Function):Promise<void>;
   model(name: string):Class<Mongoose$Model>;
   discriminator(name: string, schema: Mongoose$Schema):Class<Mongoose$Model>;
-  ensureIndexes(options?: Object, fn?: Function):Promise<null>;
+  ensureIndexes(options?: Object, fn?: Function):Promise<void>;
 }
 
 declare class Mongoose$MongooseError extends Error {
@@ -406,10 +417,10 @@ declare class Mongoose {
   set(key: string, value: any):this;
   get(key: string):any;
   createMongoose$Connection(uri: string, options?: Object):Mongoose$Connection;
-  connect(uri: string, options?: Object):Promise<null>;
-  disconnect(fn?: Function):Promise<null>;
+  connect(uri: string, options?: Object):Promise<void>;
+  disconnect(fn?: Function):Promise<void>;
   model(name: string|Function, schema?: Mongoose$Schema, collection?: string, skipInit?: boolean):Mongoose$Model;
-  modelNames():Array<string>;
+  modelNames():string[];
   plugin(fn: Function, opts: Object):this;
 
 }

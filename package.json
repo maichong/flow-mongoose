@@ -1,6 +1,6 @@
 {
   "name": "flow-mongoose",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Flow declarations for mongoose",
   "keywords": ["flow", "mongoose", "mongodb"],
   "files": ["flow"],
